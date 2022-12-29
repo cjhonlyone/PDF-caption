@@ -12,12 +12,41 @@
 
 这个脚本有些类似制作训练集的数据标注过程。
 
-## 依赖
+## 创建虚拟环境 && 安装依赖
+
+没有什么版本要求
+
+测试版本为`python 3.8.10`, 老版本也用过，具体忘记了
 
 - opencv-python
-- pdf2image(需要安装popple并添加bin目录到环境变量)
+- pdf2image
 - numpy
 - pillow
+
+Cygwin && zsh 创建并加载python虚拟环境
+```bash
+# Cygwin && zsh
+# A little difference for other shells (bash or cmd)
+python -m venv venv
+source venv/Scripts/activate
+```
+
+Windows cmd 创建并加载python虚拟环境
+```bash
+# Windows cmd
+# A little difference for other shells (bash or cmd)
+python -m venv venv
+venv\Scripts\activate.bat
+```
+
+```bash
+git clone https://github.com/cjhonlyone/PDF-caption.git
+cd PDF-caption
+# Remember to upgrade your pip, or opencv-python may install failed
+# python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
 
 ## 特点
 
@@ -28,6 +57,10 @@
 - 不必批阅一份卷子就在腾讯文档上输入分数
 
 ## 操作说明
+
+```
+python readpdf.py
+```
 
 用到的键
 
