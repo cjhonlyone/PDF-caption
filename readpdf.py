@@ -123,12 +123,20 @@ def mouse(event, x, y, flags, param):
 #    cv2.imshow("img", dst1)
 #    cv2.waitKey(1)
 
+
+
 def tag_pic(image):
     global flag, horizontal, vertical, flag_hor, flag_ver, dx, dy, sx, sy, dst, x1, y1, x2, y2, x3, y3, f1, f2
     global zoom, scroll_har, scroll_var, img_w, img_h, img, dst1, win_w, win_h, show_w, show_h, CoordinateX, CoordinateY
     global truex,truey
     global listofnum
+    global score
+    global score_idx
+
 #    img = cv2.imread("1.jpg")  # 此处需换成大于img_w * img_h的图片
+    # img_h, img_w = image.shape[0:2]
+    # if img_h < img_w :
+    #     image = np.rot90(image)
     img = ResizeWithAspectRatio(image, width=1200)
     cv2.namedWindow('img')
     img_h, img_w = img.shape[0:2]  # 原图宽高
@@ -149,7 +157,7 @@ def tag_pic(image):
     if img_h <= show_h and img_w <= show_w:
         cv2.imshow("img", img)
         cv2.destroyAllWindows()
-        print("1")
+        print("img_h%d <= show_h%d and img_w%d <= show_w%d"%(img_h, show_h, img_w, show_w))
         sys.exit(0)
     else:
         if img_w > show_w:
@@ -161,7 +169,6 @@ def tag_pic(image):
     
     cv2.resizeWindow("img", win_w, win_h)
     cv2.setMouseCallback('img', mouse)
-    
     
     mouse(0, 0, 0, 0, 0)
     while(1):
@@ -175,6 +182,17 @@ def tag_pic(image):
             cv2.putText(img1, chr(k) , (truex-dx,truey-dy), cv2.FONT_HERSHEY_SIMPLEX, 
                         2, (0, 0, 255), 10, cv2.LINE_AA)
             listofnum.append(chr(k))
+            score = score + k - 48
+            score_idx = score_idx + 1
+            print("打分点%d, 得分%d, 当前总分%d"%(score_idx, k - 48, score))
+            dst = img1.copy()
+            mouse(0, 0, 0, 0, 0)
+        elif k == 113:
+            img1 = img[dy:dy + show_h, dx:dx + show_w]  # 截取显示图片
+            cv2.putText(img1, "%d"%(score) , (truex-dx,truey-dy), cv2.FONT_HERSHEY_SIMPLEX, 
+                        2, (0, 0, 255), 10, cv2.LINE_AA)
+            listofnum.append("%d"%(score))
+            print("标记总分%d"%(score))
             dst = img1.copy()
             mouse(0, 0, 0, 0, 0)
         elif k == 97:
@@ -200,7 +218,7 @@ def tag_pic(image):
             if img_h <= show_h and img_w <= show_w:
                 cv2.imshow("img", img)
                 cv2.destroyAllWindows()
-                print("1")
+                print("img_h%d <= show_h%d and img_w%d <= show_w%d"%(img_h, show_h, img_w, show_w))
                 sys.exit(0)
             else:
                 if img_w > show_w:
@@ -238,7 +256,7 @@ def tag_pic(image):
             if img_h <= show_h and img_w <= show_w:
                 cv2.imshow("img", img)
                 cv2.destroyAllWindows()
-                print("1")
+                print("img_h%d <= show_h%d and img_w%d <= show_w%d"%(img_h, show_h, img_w, show_w))
                 sys.exit(0)
             else:
                 if img_w > show_w:
@@ -279,23 +297,29 @@ if __name__ == "__main__":
 
 #        f_csv.writerow(headers)
 #        f_csv.writerows(rows)
-    
+    pdfidx = 1
     for pdf in pdfs:
 #        f = open('stocks.csv','a+')
         f = codecs.open('./out/table.txt','a+','utf-8')
-        print(pdf)
+        print('[', pdfidx+number-1, '/', len(pdfs)+number-1, ']',  ' ',pdf)
+        pdfidx = pdfidx + 1
         listofnum = []
         listofnum.append(pdf)
         pages = convert_from_path(pdf, 150)
         new_pages = []
+        score = 0
+        score_idx = 0
+        pageidx = 1
         for image in pages:
             np_img = np.array(image);
             np_img = np_img[...,::-1]
+            print("Page %d"%(pageidx))
             new_image = Image.fromarray(np.uint8(tag_pic(np_img))[...,::-1])
             new_pages.append(new_image)
+            pageidx = pageidx + 1
         new_pages[0].save("./out/"+pdf[0:-1-3]+".pdf", save_all=True, append_images=new_pages[1:])   
         listofnums.append(listofnum)
-#        print(listofnum)
+        print(listofnum[1:])
         for item in listofnum:
             f.write("%s," % item)
             
